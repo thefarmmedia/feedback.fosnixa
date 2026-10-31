@@ -3,7 +3,7 @@ export default async (request) => {
  if(request.method!=='POST')return reply(405,'Method not allowed');
  const origin=request.headers.get('origin');
  if(origin&&origin!==new URL(request.url).origin)return reply(403,'Request not allowed');
- const destination=process.env.GHL_FEEDBACK_WEBHOOK_URL;
+ const destination=(globalThis.Netlify?.env?.get('GHL_FEEDBACK_WEBHOOK_URL') || process.env.GHL_FEEDBACK_WEBHOOK_URL || '').trim();
  if(!destination)return reply(503,'Feedback is temporarily unavailable. Please try again later.');
  let data;
  try{const text=await request.text();if(text.length>20000)return reply(413,'Message too long');data=JSON.parse(text);}catch{return reply(400,'Invalid feedback');}
