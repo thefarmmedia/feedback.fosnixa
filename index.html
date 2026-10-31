@@ -15,9 +15,10 @@ try{previouslySubmitted=sessionStorage.getItem(completionKey)==='yes';}catch{}
 const form=document.getElementById('feedback');const radios=[...document.querySelectorAll('[name=rating]')];const stars=[...document.querySelectorAll('.star')];radios.forEach(r=>r.addEventListener('change',()=>{if(form.querySelector('button[type=submit]').disabled)return;const n=Number(r.value);stars.forEach((s,i)=>s.classList.toggle('lit',i<n));document.getElementById('ratingText').textContent=n+' of 5 stars · Thank you for your feedback.';document.getElementById('privateFeedback').hidden=n>3;document.getElementById('googleOption').hidden=n<4;if(n>=4){location.assign('https://g.page/r/CVxy9Qi5mhbGEBM/review');}else{document.getElementById('comments').focus();}}));form.addEventListener('submit',async e=>{
  e.preventDefault();if(!form.reportValidity())return;
  const button=form.querySelector('button[type=submit]');if(button.disabled)return;
+ const selectedRating=Number(new FormData(form).get('rating'));
  const status=document.getElementById('status');status.hidden=false;status.textContent='Sending your feedback…';button.disabled=true;button.textContent='Sending…';radios.forEach(r=>r.disabled=true);
  try{
- const response=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:Number(new FormData(form).get('rating')),feedback:document.getElementById('comments').value,name:document.getElementById('guestName').value,email:document.getElementById('guestEmail').value,website:document.getElementById('website').value})});
+ const response=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:selectedRating,feedback:document.getElementById('comments').value,name:document.getElementById('guestName').value,email:document.getElementById('guestEmail').value,website:document.getElementById('website').value})});
  const result=await response.json();
  if(!response.ok||!result.ok)throw new Error(result.error||'We could not submit your feedback. Please try again.');
  try{sessionStorage.setItem(completionKey,'yes');}catch{}
